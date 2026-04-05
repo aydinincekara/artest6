@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Küçükçekmece Belediyesi AR Studio</title>
+    <title>Küçükçekmece Belediyesi AR Deneyimi</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#151515">
@@ -19,27 +19,31 @@
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background-color: #0f111a; color: white; }
         
-        /* 1. KURUMSAL GİRİŞ EKRANI */
+        /* 1. KURUMSAL GİRİŞ EKRANI (TAM ORTALANMIŞ) */
         #loading-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #12141f; z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            box-sizing: border-box; padding: 20px;
         }
-        .logo-box img { width: 180px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .kurum-adi { font-size: 1.4em; font-weight: 800; letter-spacing: 1px; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
-        .uygulama-adi { font-weight: 300; letter-spacing: 4px; font-size: 0.9em; color: #a0a0a0; margin-bottom: 40px; }
+        .logo-box img { width: 180px; height: auto; margin-bottom: 25px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
         
+        /* Yeni Yazı Stilleri */
+        .kurum-adi { font-size: 1.5em; font-weight: 800; letter-spacing: 1px; color: #fff; margin-bottom: 8px; text-transform: uppercase; line-height: 1.3em; }
+        .uygulama-adi { font-weight: 300; letter-spacing: 3px; font-size: 1em; color: #a0a0a0; margin-bottom: 45px; text-transform: uppercase; }
+        
+        /* Yüzdelik Bar */
         .progress-wrapper { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; }
         .spinner {
             position: absolute; width: 100%; height: 100%; border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #0056b3; border-radius: 50%; animation: spin 1s linear infinite;
+            border-top: 3px solid #0056b3; border-radius: 50%; animation: spin 1s linear infinite; box-sizing: border-box;
         }
         #progress-text { font-size: 1em; font-weight: bold; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 2. KVKK VE SORUMLULUK BEYANI (BEYAZ KART) */
         #start-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: rgba(15, 17, 26, 0.98); z-index: 9999;
             display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
         }
@@ -67,10 +71,10 @@
 
     <div id="loading-screen">
         <div class="logo-box">
-            <img src="media_klasoru/kucukcekmece_logo.png" alt="Küçükçekmece Belediyesi">
+            <img src="media_klasoru/kucukcekmece_logo.png" alt="Küçükçekmece Belediyesi Logosu">
         </div>
-        <div class="kurum-adi">Gençlik Merkezi</div>
-        <div class="uygulama-adi">AR STUDIO UYGULAMASI</div>
+        <div class="kurum-adi">KÜÇÜKÇEKMECE BELEDİYESİ<br>GENÇLİK MERKEZİ</div>
+        <div class="uygulama-adi">Artırılmış Gerçeklik (AR)</div>
         
         <div class="progress-wrapper">
             <div class="spinner"></div>
@@ -142,14 +146,24 @@
                 }
             }, 200);
 
-            sceneEl.addEventListener('loaded', () => { 
+            // Chrome Mobil "Takılma" Sorununu Çözen Fonksiyon
+            let isLoaded = false;
+            function finishLoading() {
+                if (isLoaded) return;
+                isLoaded = true;
                 clearInterval(progressInterval);
                 progressText.innerText = "100%";
                 setTimeout(() => {
                     loadingScreen.style.display = "none"; 
                     startScreen.style.display = "flex"; 
                 }, 500);
-            });
+            }
+
+            // Normal şartlarda yükleme bitince çalışır
+            sceneEl.addEventListener('loaded', finishLoading);
+            
+            // GÜVENLİK KİLİDİ: 7 saniye geçerse sistemi ne olursa olsun KVKK ekranına atar
+            setTimeout(finishLoading, 7000);
 
             startBtn.addEventListener('click', function() {
                 startScreen.style.display = "none";
